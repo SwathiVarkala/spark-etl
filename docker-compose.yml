@@ -1,16 +1,19 @@
 version: '2.1'
 services:
   spark-master:
-    image: dhruvk/spark-master-livy:2.4
+    build: livy-server
     container_name: spark-master
     ports:
       - "8080:8080"
       - "7077:7077"
       - "8998:8998"
+      - "18080:18080"
     tty: true
     environment:
       - INIT_DAEMON_STEP=setup_spark
       - "constraint:node==<yourmasternode>"
+    volumes:
+      - /Users/jitendrasachdeva/TW-DU/transformations/target/scala-2.11:/tmp/jars/
 
   spark-worker-1:
     image: bde2020/spark-worker:2.4.4-hadoop2.7
@@ -32,13 +35,13 @@ services:
       - "8082:8081"
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
-      - "constraint:node==<yourworkernode>" 
+      - "constraint:node==<yourworkernode>"
 
   postgres:
     container_name: "postgres"
     image: postgres:9.6
     volumes:
-      - ${HOME}/postgres_mount/postgres:/var/lib/postgresql/data        
+      - ${HOME}/postgres_mount/postgres:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
@@ -52,9 +55,12 @@ services:
       - postgres
     environment:
       - EXECUTOR=Local
+      - AIRFLOW__CORE__FERNET_KEY=1uU2E6EgdCmdHKebTZjQYvhCzqv8Q597vULxXJy-blE=
+      - FERNET_KEY=1uU2E6EgdCmdHKebTZjQYvhCzqv8Q597vULxXJy-blE=
     command: "webserver"
     volumes:
-      - ${HOME}/airflow_mount/dags:/usr/local/airflow/dags
+      - ${PWD}/dags:/usr/local/airflow/dags
+      - ${PWD}/plugins:/usr/local/airflow/plugins
       - ${HOME}/airflow_mount/logs:/usr/local/airflow/logs
     ports:
       - "8090:8080"

@@ -17,6 +17,17 @@ echo "Starting the livy server"
 
 echo "livy.spark.master = spark://spark-master:7077" > /livy/apache-livy-0.6.0-incubating-bin/conf/livy.conf
 
+echo "livy.file.local-dir-whitelist = /tmp/jars" >>  /livy/apache-livy-0.6.0-incubating-bin/conf/livy.conf
+
 /livy/apache-livy-0.6.0-incubating-bin/bin/livy-server start &
+
+echo "Starting spark history server"
+echo "
+spark.eventLog.enabled           true
+spark.eventLog.dir               file:///tmp/spark-events
+spark.history.fs.logDirectory       file:///tmp/spark-events
+" >> /spark/conf/spark-defaults.conf
+mkdir -p /tmp/spark-events
+. "/spark/sbin/start-history-server.sh" &
 
 tail -f /dev/null
