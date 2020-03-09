@@ -46,31 +46,21 @@ services:
 
   webserver:
     container_name: "webserver"
-    image: my-airflow-presentation-webserver:latest
+    image: puckel/docker-airflow:1.10.4
     restart: always
     depends_on:
       - postgres
     environment:
       - EXECUTOR=Local
+    command: "webserver"
     volumes:
       - ${HOME}/airflow_mount/dags:/usr/local/airflow/dags
       - ${HOME}/airflow_mount/logs:/usr/local/airflow/logs
     ports:
-      - "9001:8080"
+      - "8090:8080"
+      - "5555:5555"
     healthcheck:
       test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
       interval: 30s
       timeout: 30s
       retries: 3
-
-  scheduler:
-    container_name: "scheduler"
-    image: my-airflow-presentation-scheduler:latest
-    restart: always
-    depends_on:
-      - webserver
-    environment:
-      - EXECUTOR=Local
-    volumes:
-      - ${HOME}/airflow_mount/dags:/usr/local/airflow/dags
-      - ${HOME}/airflow_mount/logs:/usr/local/airflow/logs
