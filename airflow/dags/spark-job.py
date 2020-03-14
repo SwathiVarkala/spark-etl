@@ -42,7 +42,7 @@ default_args = {
 dag = DAG(DAG_ID, default_args=default_args, schedule_interval=None, start_date=(datetime.now() - timedelta(minutes=1)))
 
 livy_java_task = LivyOperator(
-    task_id='dummy_task',
+    task_id='spark_job',
     dag=dag,
     livy_conn_id='livy_http_conn',
     file='file:///tmp/jars/tw-pipeline-assembly-0.1.0-SNAPSHOT.jar',
