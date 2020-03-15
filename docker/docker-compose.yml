@@ -12,7 +12,9 @@ services:
     environment:
       - INIT_DAEMON_STEP=setup_spark
     volumes:
-      - /Users/jitendrasachdeva/TW-DU/transformations/target/scala-2.11:/tmp/jars/
+      - ${PWD}/data_path:/var/data_path
+      - ${PWD}/../target/scala-2.11/spark-etl-assembly-0.1.0-SNAPSHOT.jar:/tmp/jars/spark-etl-assembly-0.1.0-SNAPSHOT.jar
+    env_file: config.env
 
   spark-worker-1:
     image: bde2020/spark-worker:2.4.4-hadoop2.7
@@ -23,6 +25,9 @@ services:
       - "8081:8081"
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
+    volumes:
+      - ${PWD}/data_path:/var/data_path
+    env_file: config.env
 
   spark-worker-2:
     image: bde2020/spark-worker:2.4.4-hadoop2.7
@@ -33,6 +38,9 @@ services:
       - "8082:8081"
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
+    volumes:
+      - ${PWD}/data_path:/var/data_path
+    env_file: config.env
 
   postgres:
     container_name: "postgres"
@@ -43,6 +51,7 @@ services:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
+    env_file: config.env
 
   webserver:
     container_name: "webserver"
@@ -56,14 +65,34 @@ services:
       - FERNET_KEY=1uU2E6EgdCmdHKebTZjQYvhCzqv8Q597vULxXJy-blE=
     command: "webserver"
     volumes:
-      - ${PWD}/dags:/usr/local/airflow/dags
-      - ${PWD}/plugins:/usr/local/airflow/plugins
-      - ${HOME}/airflow_mount/logs:/usr/local/airflow/logs
+      - ${PWD}/data_path:/var/data_path
+      - ${PWD}/../airflow/dags:/usr/local/airflow/dags
+      - ${PWD}/../airflow/plugins:/usr/local/airflow/plugins
+      - ${PWD}/../airflow/logs:/usr/local/airflow/logs
     ports:
       - "8090:8080"
-      - "5555:5555"
     healthcheck:
       test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
       interval: 30s
       timeout: 30s
       retries: 3
+    env_file:
+      - config.env
+
+  scheduler:
+    container_name: "scheduler"
+    image: puckel/docker-airflow:1.10.4
+    restart: always
+    depends_on:
+      - webserver
+    environment:
+      - EXECUTOR=Local
+      - AIRFLOW__CORE__FERNET_KEY=1uU2E6EgdCmdHKebTZjQYvhCzqv8Q597vULxXJy-blE=
+      - FERNET_KEY=1uU2E6EgdCmdHKebTZjQYvhCzqv8Q597vULxXJy-blE=
+    volumes:
+      - ${PWD}/data_path:/var/data_path
+      - ${PWD}/../airflow/dags:/usr/local/airflow/dags
+      - ${PWD}/../airflow/plugins:/usr/local/airflow/plugins
+      - ${PWD}/../airflow/logs:/usr/local/airflow/logs
+    env_file:
+      - config.env
