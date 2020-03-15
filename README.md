@@ -1,3 +1,7 @@
+## Prerequisite
+* Intellij latest - https://www.jetbrains.com/idea/download/#section=mac
+* Docker Desktop - https://hub.docker.com/editions/community/docker-ce-desktop-mac/ 
+
 ## Command to build and deploy containers
 `docker-compose build && docker-compose up --force-recreate`
 
