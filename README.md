@@ -19,3 +19,10 @@ Note: Make sure docker is running in your machine. if not installed, follow http
 * spark history server - localhost:18080
 * livy server - localhost:8998
 * airflow web ui - localhost:8090
+
+### Add livy connetion in airflow to run the dag
+    1. Set the Conn Id as "livy_http_conn"
+    2. Set the Conn Type as "http"
+    3. Set the host as spark-master
+    4. Set the port as 8998
+    5. Save
