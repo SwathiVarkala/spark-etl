@@ -31,8 +31,8 @@ default_args = {
     'retries': 0,
 }
 
-dag = DAG(DAG_ID, default_args=default_args, schedule_interval="*/5 * * * *",
-          start_date=(datetime.now() - timedelta(minutes=180)), catchup=False)
+dag = DAG(DAG_ID, default_args=default_args, schedule_interval=None,
+          start_date=(datetime(2020, 3, 16, 0, 0, 0, 0)), catchup=False)
 
 input_path = f'{os.environ["INPUT_PATH"]}'
 raw_path = f'{os.environ["RAW_PATH"]}/' + '{{ ts_nodash }}'
