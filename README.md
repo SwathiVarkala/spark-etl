@@ -8,6 +8,7 @@ Note: After you clone this repository, you may want to import airflow code as mo
 `sbt clean assembly`
 
 ## Command to build and deploy containers
+`cd docker`
 `docker-compose build && docker-compose up --force-recreate`
 
 Note: Make sure docker is running in your machine. if not installed, follow https://docs.docker.com/docker-for-mac/install for mac
