@@ -5,3 +5,4 @@ project/target/
 target/
 venv/
 postgres_mount
+airflow/logs
