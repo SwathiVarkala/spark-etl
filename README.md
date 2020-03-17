@@ -9,7 +9,7 @@ Note: After you clone this repository, you may want to import airflow code as mo
 
 ## Command to build and deploy containers
 `cd docker`
-`docker-compose build && docker-compose up --force-recreate`
+`docker-compose down && docker-compose build && docker-compose up --force-recreate`
 
 Note: Make sure docker is running in your machine. if not installed, follow https://docs.docker.com/docker-for-mac/install for mac
 ### This will deploy following containers
