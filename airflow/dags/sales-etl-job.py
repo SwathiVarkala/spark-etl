@@ -37,6 +37,7 @@ dag = DAG(DAG_ID, default_args=default_args, schedule_interval=None,
 input_path = f'{os.environ["INPUT_PATH"]}'
 raw_path = f'{os.environ["RAW_PATH"]}/' + '{{ ts_nodash }}'
 destination_path = f'{os.environ["DESTINATION_PATH"]}'
+error_path = f'{os.environ["ERROR_PATH"]}'
 
 file_sensor = FileSensor(task_id='file_exists',
                          dag=dag,
@@ -47,7 +48,7 @@ file_sensor = FileSensor(task_id='file_exists',
 extract_data = BashOperator(
     task_id='extract_data',
     dag=dag,
-    bash_command='mkdir -p ' + raw_path + ' && ' + ' mv ' + input_path + '/* ' + raw_path
+    bash_command='mkdir -p ' + raw_path + ' && ' + ' cp ' + input_path + '/* ' + raw_path
 )
 
 transform_data = LivyOperator(
@@ -61,7 +62,7 @@ transform_data = LivyOperator(
     },
     class_name='thoughtworks.sales.TransformData',
     polling_interval=10,
-    args=['--inputPath=' + raw_path, f'--outputPath={destination_path}_TMP']
+    args=['--inputPath=' + raw_path, f'--outputPath={destination_path}_TMP', '--errorPath=' + error_path]
 )
 
 load_data = BashOperator(
