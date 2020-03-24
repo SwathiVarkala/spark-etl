@@ -4,6 +4,8 @@ import os
 from datetime import datetime, timedelta
 
 from airflow.contrib.sensors.file_sensor import FileSensor
+#from airflow.operators.sensors import HdfsSensor
+from airflow.operators.sensors import HdfsSensor
 from airflow.models import DAG
 from airflow.operators import LivyOperator
 from airflow.operators.bash_operator import BashOperator
@@ -39,11 +41,17 @@ raw_path = f'{os.environ["RAW_PATH"]}/sales/' + '{{ ts_nodash }}'
 destination_path = f'{os.environ["DESTINATION_PATH"]}/sales'
 error_path = f'{os.environ["ERROR_PATH"]}/sales'
 
-file_sensor = FileSensor(task_id='file_exists',
-                         dag=dag,
-                         filepath=input_path,
-                         timeout=300,
-                         poke_interval=10)
+# file_sensor = FileSensor(task_id='file_exists',
+#                          dag=dag,
+#                          filepath=input_path,
+#                          timeout=300,
+#                          poke_interval=10)
+
+file_sensor = HdfsSensor(
+    task_id='file_exists',
+    filepath=input_path,
+    hdfs_conn_id='hdfs_default',
+    dag=dag)
 
 extract_data = BashOperator(
     task_id='extract_data',
@@ -62,13 +70,14 @@ transform_data = LivyOperator(
     },
     class_name='thoughtworks.sales.TransformData',
     polling_interval=10,
-    args=['--inputPath=' + raw_path, f'--outputPath={destination_path}_TMP', '--errorPath=' + error_path]
+#     args=['--inputPath=' + raw_path, f'--outputPath={destination_path}_TMP', '--errorPath=' + error_path]
+    args=['--inputPath=' + input_path, f'--outputPath={destination_path}_TMP', '--errorPath=' + error_path]
 )
 
 load_data = BashOperator(
     task_id='load_data',
     dag=dag,
-    bash_command=f'rm -rf {destination_path} && mv {destination_path}_TMP {destination_path}'
+    bash_command=f'hdfs dfs -rm -R {destination_path} && hdfs dfs -mv {destination_path}_TMP {destination_path} && hdfs dfs -rm -r {destination_path}_TMP'
 )
 
 file_sensor >> extract_data >> transform_data >> load_data
