@@ -34,10 +34,10 @@ default_args = {
 dag = DAG(DAG_ID, default_args=default_args, schedule_interval=None,
           start_date=(datetime(2020, 3, 16, 0, 0, 0, 0)), catchup=False)
 
-input_path = f'{os.environ["INPUT_PATH"]}/sales'
-raw_path = f'{os.environ["RAW_PATH"]}/sales/' + '{{ ts_nodash }}'
-destination_path = f'{os.environ["DESTINATION_PATH"]}/sales'
-error_path = f'{os.environ["ERROR_PATH"]}/sales'
+input_path = f'{os.environ["INPUT_PATH"]}/word-count'
+raw_path = f'{os.environ["RAW_PATH"]}/word-count/' + '{{ ts_nodash }}'
+destination_path = f'{os.environ["DESTINATION_PATH"]}/word-count'
+error_path = f'{os.environ["ERROR_PATH"]}/word-count'
 
 file_sensor = FileSensor(task_id='file_exists',
                          dag=dag,
@@ -55,14 +55,14 @@ transform_data = LivyOperator(
     task_id='transform_data',
     dag=dag,
     livy_conn_id=HTTP_CONN_ID,
-    file='file:///tmp/jars/spark-etl-assembly-0.1.0-SNAPSHOT.jar',
+    file='file:///tmp/jars/tw-pipeline_2.11-0.1.0-SNAPSHOT.jar',
     num_executors=1,
     conf={
         'spark.shuffle.compress': 'false',
     },
-    class_name='thoughtworks.sales.TransformData',
+    class_name='thoughtworks.wordcount.WordCount',
     polling_interval=10,
-    args=['--inputPath=' + raw_path, f'--outputPath={destination_path}_TMP', '--errorPath=' + error_path]
+    args=['--inputPath=' + raw_path + '/words.txt', f'--outputPath={destination_path}_TMP', '--errorPath=' + error_path]
 )
 
 load_data = BashOperator(

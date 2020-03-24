@@ -14,6 +14,7 @@ services:
     volumes:
       - ${PWD}/data_path:/var/data_path
       - ${PWD}/../target/scala-2.11/spark-etl-assembly-0.1.0-SNAPSHOT.jar:/tmp/jars/spark-etl-assembly-0.1.0-SNAPSHOT.jar
+      - ${PWD}/../target/scala-2.11/tw-pipeline_2.11-0.1.0-SNAPSHOT.jar:/tmp/jars/tw-pipeline_2.11-0.1.0-SNAPSHOT.jar
     env_file: config.env
 
   spark-worker-1:
